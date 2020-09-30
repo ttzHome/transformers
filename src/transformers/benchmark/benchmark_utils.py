@@ -76,12 +76,7 @@ def separate_process_wrapper_fn(func: Callable[[], None], do_multi_processing: b
         # run function in an individual
         # process to get correct memory
         def wrapper_func(queue: Queue, *args):
-            try:
-                result = func(*args)
-            except Exception as e:
-                logger.error(e)
-                print("WTF", e)
-                result = "N/A"
+            result = func(*args)
             queue.put(result)
 
         queue = Queue()
