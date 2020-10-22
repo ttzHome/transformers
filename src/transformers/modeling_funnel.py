@@ -648,7 +648,7 @@ class FunnelEncoder(nn.Module):
                         key = value = hidden if self.config.pool_q_only else pooled_hidden
                     else:
                         query = key = value = hidden
-                    layer_output = layer(query, key, value, attention_inputs, output_attentions=output_attentions)
+                    layer_output = layer(query, key, value, attention_inputs, output_attentions)
                     hidden = layer_output[0]
                     if do_pooling:
                         attention_inputs = self.attention_structure.post_attention_pooling(attention_inputs)
@@ -907,7 +907,7 @@ class FunnelBaseModel(FunnelPreTrainedModel):
         self.embeddings.word_embeddings = new_embeddings
 
     def get_layers(self):
-        return self.encoder.blocks
+        return [layer for block in self.encoder.blocks for layer in block]
 
     @add_start_docstrings_to_model_forward(FUNNEL_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
@@ -1008,7 +1008,7 @@ class FunnelModel(FunnelPreTrainedModel):
         output_attentions = torch.tensor(
             output_attentions if output_attentions is not None else self.config.output_attentions
         )
-        output_hidden_states = torch.tensor(
+        output_hidden_states = (
             output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
         )
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
